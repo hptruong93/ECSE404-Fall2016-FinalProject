@@ -1,0 +1,203 @@
+
+\documentclass [12pt,letterpaper]{exam}
+\usepackage{amsmath, amsthm, amsfonts, amssymb, amscd}
+\usepackage{lipsum}
+\usepackage{type1cm}
+\usepackage{graphicx}
+
+%\pagestyle{plain}
+
+\oddsidemargin  0.0in
+\evensidemargin 0.0in
+\textwidth      6.0in
+\headheight     0.0in
+\topmargin      0.0in
+\textheight     9.0in
+
+\header{ECSE-404}{Control Systems}{December 7, 2016}
+
+\newcounter{count}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\noindent
+\section{Abstract}
+The problem of stabilizing inverted pendulum is a classic problem in control system. There has been many detailed studies regarding this topic. This project goal is to explore and discuss possible problems and analyses revolving around the problem of stabilization of an inverted pendulum with one degree of freedom. The project will derive the system equation from classical mechanics and discuss the properties and characteristics of the derived system within the scope of basic control theory. Specifically, linearization, observability, controllability and analysis of transfer function will be discussed. Finally, the project delineates several applicable controllers for the derived system: the pole-placement based controller, the PID controller and the linear quadratic regulator controller.
+\newpage
+
+\section{Introduction}
+\subsection{System overview}
+The physical system is described using the following figure:
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=8cm, height=8cm]{system_diagram} 
+  \caption{Inverted pendulum system with one degree of freedom}
+  \label{fig:system_diagram}
+\end{figure}
+
+The following parameters are considered in the system:
+\begin{itemize}
+    \item Mass of card $M$
+    \item Mass of object at the top of weightless rod $m$
+    \item Length of rod $l$
+    \item Angle between the rod and y axis $\theta$
+    \item Force applied on the cart $F$
+    \item Distance between cart and y axis $x$
+\end{itemize}
+
+\subsection{Control system objectives}
+The objective of the controller designed for this system is to have the mass at the top of the rod kept balanced. That is, the cart has to control the rod by its movement so that the rod aligns itself perpendicular to the ground on which the cart is moving. At such point, the system will also have to ensure that the velocity of the cart is zero to maintain the stability of the mass at any time after that.
+
+The following figure visualizes the system achieving the objective:
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=8cm, height=8cm]{equilibrium_system_diagram} 
+  \caption{Inverted pendulum system with one degree of freedom}
+  \label{fig:system_diagram}
+\end{figure}
+
+This implies that the following conditions hold at system stable point:
+\begin{align}
+\begin{cases}
+\theta = 0 \\
+\dot{x} = 0
+\end{cases}
+\end{align}
+
+\newpage
+\section{System derivation}
+\subsection{Non-linear system}
+With the setup as above, we have the following generalized coordinates:
+\begin{align}
+& \mbox{Generalized coordinates: } q = [q_1, q_2] = [x, \theta]^T \\
+& \mbox{Horizontal position of mass: } x + lsin(\theta) \\
+& \mbox{Vertical position of mass: } lcos(\theta)
+\end{align}
+
+The total kinetic energy of mass is
+\begin{align} 
+& T = \frac{1}{2}M\dot{x}^2 + \frac{1}{2}m\bigg[\bigg(\frac{d}{dt}(x + lsin(\theta))\bigg)^2 + \bigg(\frac{d}{dt}(lcos(\theta))\bigg)^2\bigg] \\
+& = \frac{1}{2}M\dot{x}^2 + \frac{1}{2}m\bigg[(\dot{x} + l\dot{\theta}cos(\theta))^2 + (-l\dot{\theta}sin(\theta))^2\bigg]
+\end{align}
+
+The potential energy of mass is
+\begin{align} 
+& V = V_o + mglcos(\theta)
+\end{align}
+
+where $V_o$ \mbox{ is the potential energy of m for } $\theta = 90^o$.
+
+The Lagrange function is:
+
+\begin{align}
+& L = \frac{1}{2}M\dot{x}^2 + \frac{1}{2}m\big[(\dot{x} + l\dot{\theta}cos(\theta))^2 + (l\dot{\theta}sin(\theta))^2\big] - V_o - mglcos(\theta)
+\end{align}
+
+We notice that in the described system, F is the only non-conservative force. This means that only the horizontal component of $F$ does work on the system. Therefore, we have the following Lagrange equations:
+
+\begin{align}
+& \begin{cases} \frac{d}{dt}\bigg(\frac{\partial L}{\partial \dot{x}}\bigg) - \frac{\partial L}{\partial x} = F \\
+\frac{d}{dt}\bigg(\frac{\partial L}{\partial \dot{\theta}}\bigg) - \frac{\partial L}{\partial \theta} = 0
+\end{cases}
+\end{align}
+
+From here, we compute the derivatives:
+
+\begin{align}
+& \frac{\partial L}{\partial \dot{x}} = M\dot{x} + m(\dot{x} + l\dot{\theta}cos(\theta)) \\
+& \frac{d}{dt}\bigg(\frac{\partial L}{\partial \dot{x}}\bigg) = M\ddot{x} + m(\ddot{x} + l\ddot{\theta}cos(\theta) - l\dot{\theta}^2sin(\theta) \\
+& \frac{\partial L}{\partial x} = 0 \\
+\begin{split}
+& \frac{\partial L}{\partial \dot{\theta}} = m(\dot{x} + l\dot{\theta}cos(\theta)) + ml^2\dot{\theta}sin^{2}(\theta) = ml\dot{x}cos(\theta) + ml^2\dot{\theta} \\
+\end{split} \\
+& \frac{d}{dt}\bigg(\frac{\partial L}{\partial \dot{\theta}}\bigg) = ml\ddot{x}cos(\theta) - ml\dot{\theta}\dot{x}sin(\theta) + ml^2\ddot{\theta} \\
+\begin{split}
+& \frac{\partial L}{\partial \theta} = -m(\dot{x} + l\dot{\theta}cos(\theta))l\dot{\theta}sin(\theta) + ml^2\dot{\theta}^2sin(\theta)cos(\theta) + mglsin(\theta) \\
+& = -ml\dot{\theta}\dot{x}sin(\theta) + mglsin(\theta)
+\end{split}
+\end{align}
+
+Substituting this back into the Lagrange equations above yields:
+
+\begin{align}
+\begin{cases}
+(M + m)\ddot{x} + ml\ddot{\theta}cos(\theta) - ml\dot{\theta}^2sin(\theta) = F \\
+ml\dot{x}cos(\theta) - ml\dot{\theta}\dot{x}sin(\theta) + ml^2\ddot{\theta} + ml\dot{\theta}\dot{x}sin(\theta) - mglsin(\theta) \\
+= -ml(\ddot{x}cos(\theta) + l\ddot{\theta} -gsin(\theta)) = 0
+\end{cases}
+\end{align}
+
+From here, we can derive the final non-linear dynamical model:
+
+\begin{align}
+\begin{cases}
+(M + m)\ddot{x} + ml\ddot{\theta}cos(\theta) - ml\dot{\theta}^2sin(\theta) = F \\
+\ddot{x}cos(\theta) + l\ddot{\theta} -gsin(\theta) = 0
+\end{cases}
+\end{align}
+
+The following initial conditions are therefore required:
+\begin{align}
+x(0), \dot{x}(0), \theta(0), \dot{\theta}(0)
+\end{align}
+
+\subsection{System state space representation}
+Using the dynamical model derived in the previous section, we have the following observations:
+
+\begin{itemize}
+    \item $l$ and $g$ are constants
+    \item $x$, $\theta$, $\dot{x}$, and $\dot{\theta}$ are system states
+    \item $x$ and $\theta$ are output variables
+    \item $F$ is the system input
+\end{itemize}
+
+Using these observations, we can re-define the system variables:
+\begin{align}
+\begin{cases}
+x_1 = x \\
+x_2 = \theta \\
+x_3 = \dot{x} \\
+x_4 = \dot{\theta} \\
+y_1 = x_1 \\
+y_2 = x_2 \\
+u_1 = F
+\end{cases}
+\end{align}
+
+Using the newly defined variables in the model, we have
+\begin{align}
+\begin{cases}
+(M + m)\dot{x_3} + ml\dot{x_4}cos(x_2) - mlx_4^2sin(x_2) = u_1 \\
+\dot{x_3}cos(x_2) + lx_4 - gsin(x_2) = 0
+\end{cases}
+\end{align}
+
+Solving for $x_3$ and $x_4$, together with trivial observation that $\dot{x_1} = x_3$ and $\dot{x_2} = x_4$, we have the state space form of the system:
+\begin{align}
+\begin{cases}
+\dot{x_1} = x_3 \\
+\dot{x_2} = x_4 \\
+\dot{x_3} = \frac{u_1 + mlx_4^2sin(x_2) - mgsin(x_2)cos(x_2)}{M + m(1 - cos^{2}(x_2)} \\
+\dot{x_4} = \frac{-u_1cos(x_2) - mlx_4^2sin(x_2)cos(x_2) + (M + m)gsin(x_2)}{l\big[M + m(1 - cos^{2}(x_2)\big]}
+\end{cases}
+\end{align}
+
+\subsection{Linearization of non-linear system}
+We choose to linearize the system around 
+
+\subsection{Transfer function}
+\subsection{Observability and controllability}
+\subsubsection{Observability}
+\subsubsection{Controllability}
+\newpage
+\section{Controllers}
+\subsection{Pole-placement based controller}
+\subsection{PID controller}
+\subsection{Linear quadratic regulator}
+\newpage
+\section{Conclusion}
+
+
+
+\end{document}
