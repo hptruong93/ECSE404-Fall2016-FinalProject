@@ -25,6 +25,9 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
+\newpage
+\tableofcontents
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \lstset{language=Matlab,%
@@ -46,7 +49,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \noindent
 \section{Abstract}
-The problem of stabilizing inverted pendulum is a classic problem in control system. There has been many detailed studies regarding this topic. This project goal is to explore and discuss possible problems and analyses revolving around the problem of stabilization of an inverted pendulum with one degree of freedom. The project will derive the system equation from classical mechanics and discuss the properties and characteristics of the derived system within the scope of basic control theory. Specifically, linearization, observability, controllability and analysis of transfer function will be discussed. Finally, the project delineates several applicable controllers for the derived system: the pole-placement based controller, the PID controller and the linear quadratic regulator controller.
+The problem of stabilizing inverted pendulum is a classic problem in control systems. There has been many detailed studies regarding this topic. This project goal is to explore and discuss possible problems and analyses revolving around the problem of stabilization of an inverted pendulum with one degree of freedom. The project will derive the system equation from classical mechanics and discuss the properties and characteristics of the derived system within the scope of basic control theory. Specifically, linearization, observability, controllability and analysis of transfer function will be discussed. Finally, the project delineates several applicable controllers for the derived system: the pole-placement based controller, the PID controller and the linear quadratic regulator controller.
 \newpage
 
 \section{Introduction}
@@ -120,7 +123,7 @@ Using physical laws:
 
 The torque due to damping opposes the motion:
 \begin{align}
-& J\ddot{\theta(t)} = T(t) - D\dot{\theta(t)} \\
+& J\ddot{\theta}(t) = T(t) - D\dot{\theta}(t) \\
 & v_b(t) = K_b\frac{d}{dt}\theta(t)
 \end{align}
 
@@ -236,8 +239,8 @@ x_1 = x \\
 x_2 = \theta \\
 x_3 = \dot{x} \\
 x_4 = \dot{\theta} \\
-y_1 = x_2 \\
-y_2 = x_4 \\
+y_1 = x_1 \\
+y_2 = x_2 \\
 u_1 = F
 \end{cases}
 \end{align}
@@ -388,7 +391,7 @@ x(0) = x_o
 \end{cases}
 \end{align}
 
-Matching the general system with the generalized system above, and consider the outputs $y_1 = \theta = x_2 ; y_2 = \dot{\theta} = x_4$, we have
+Matching the general system with the generalized system above, and consider the outputs $y_1 = x = x_1$ and $y_2 = \theta = x_2 $, we have
 \begin{align}
 \begin{cases}
 \dot{x} = \begin{bmatrix}
@@ -405,8 +408,8 @@ Matching the general system with the generalized system above, and consider the 
 \frac{1}{lM} \\
 \end{bmatrix} u \\
 y = \begin{bmatrix}
-0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0
 \end{bmatrix} x
 \end{cases}
 \end{align}
@@ -426,8 +429,8 @@ B = \begin{bmatrix}
 \frac{-1}{lM} \\
 \end{bmatrix} \\
 C = \begin{bmatrix}
-0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0
 \end{bmatrix} & &
 D = 0
 \end{align}
@@ -436,8 +439,8 @@ We then have the transfer function
 \begin{align}
 H(s) = C(sI - A)^{-1}B + D = C(sI - A)^{-1}B \\
 \Rightarrow H(s) = \begin{bmatrix}
-0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0
 \end{bmatrix}
 \Bigg(sI - \begin{bmatrix}
 0 & 0 & 1 & 0 \\
@@ -452,8 +455,8 @@ H(s) = C(sI - A)^{-1}B + D = C(sI - A)^{-1}B \\
 \frac{-1}{lM} \\
 \end{bmatrix} \\
 \Rightarrow H(s) = \begin{bmatrix}
-0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 1
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0
 \end{bmatrix}
 \begin{bmatrix}
 s & 0 & -1 & 0 \\
@@ -468,7 +471,7 @@ s & 0 & -1 & 0 \\
 \end{bmatrix}
 \end{align}
 
-Here $H(s)$ is a 1 x 1 matrix (i.e. a scalar) since we only have 1 output. To further simplify the transfer function, we let matrix $A$ and $B$ be in this form
+Here $H(s)$ is a 2 x 1 matrix since we only have 2 outputs. To further simplify the transfer function, we let matrix $A$ and $B$ be in this form
 
 \begin{align}
 & A = \begin{bmatrix}
@@ -489,8 +492,12 @@ We can then use Matlab to simplify $H(s)$, which gives a surprisingly simple tra
 
 \begin{align}
 & H(s) = \begin{bmatrix} 
-\frac{d}{s^2 - b} \\
-\frac{ds}{s^2 - b} \\
+\frac{c}{s^2} + \frac{ad}{s^4 - bs^2} \\
+\frac{d}{s^2 - b}
+\end{bmatrix} \\
+& \Rightarrow H(s) =\begin{bmatrix} 
+\frac{ad - bc + cs^2}{s^2 (s^2 - b)} \\
+\frac{d}{s^2 - b}
 \end{bmatrix}
 \end{align}
 
@@ -500,7 +507,13 @@ For any natural parameter $l$, $m$, and $M$, we have the following properties fo
 & d = \frac{-1}{lM} < 0
 \end{align}
 
-This transfer function suggests that the system is proper, and has one zero $s = 0$ and two real poles at $s = \pm b$. Unfortunately, it is unstable as the real part of pole $s = b$ is positive.
+Considering the possible zeros of the system, which are roots of $cs^2 + ad - bc = 0 \Leftrightarrow cs^2 = bc - ad$. We observe that 
+\begin{align}
+bc - ad = \frac{(M + m)g}{lM^2} - \frac{mg}{lM^2} = \frac{Mg}{lM^2} = \frac{g}{lM} > 0
+\end{align}
+Therefore the above equation has real roots.
+
+Therefore, this transfer function suggests that the system is proper, and has zeros at $s = \pm\sqrt{b - \frac{ad}{c}}$ and poles at $s = \pm b$ and $s = 0$. Unfortunately, it is unstable as the real part of pole $s = b$ is positive.
 
 \subsection{Observability and controllability}
 \subsubsection{Observability}
@@ -732,7 +745,7 @@ c_0 & c_1 & c_2 & ... & c_{n-2} & c_{n-1}
 
 We can transform the original system to its canonical controllable form via the transfer function. Recall that the derived transfer function was:
 \begin{align}
-H(s) = \frac{d}{s^2 - b} = \frac{0s^2 + 0s + d}{s^2 + 0s - b}
+H(s) = \frac{d}{s^2 - b}
 \end{align}
 This is equivalent to the following controllable canonical form:
 \begin{align}
@@ -748,7 +761,7 @@ d & 0
 \end{align}
 
 \subsubsection{First choice of poles}
-As an example, using the sample system, our original poles were approximately $\pm4.2976$. The positive pole is undesirable and should be replaced to improve stability of the system. Using the pole placement controller, we can guess an initial set of new poles as follow:
+As an example, using the sample system, our original poles were approximately $s = \pm4.2976$ and $s = 0$. The positive pole is undesirable and should be replaced to improve stability of the system. Using the pole placement controller, we can guess an initial set of new poles as follow:
 \begin{itemize}
     \item $p1 = -2$
     \item $p2 = -3$
@@ -824,6 +837,35 @@ Noticing that there is a significant improvement of system stability over time, 
 \lstinputlisting[language=Matlab]{pole_placement_2.m}
 
 The plots suggest a noticeable improvement of the time taken for the system to reach the objective state (equilibrium). Using the first choice of poles, we reached the objective within approximately $6$ seconds, while with the second choice of poles, we reached the objective within approximately $4$ seconds only. This improvement can be attributed to the choice of poles which have larger real parts, for they were able to bring the system to equilibrium in a shorter amount of time.
+
+\subsubsection{Third choice of poles}
+In the third choice of poles, we aim to further improve the results obtained from the second choice of poles above. The following diagrams describe the results and the new poles chosen for the third choice.
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=10.15cm, height=7cm]{pl3_poles} 
+  \caption{Poles of the third choice of pole placement system}
+  \label{fig:pl3_poles}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=10.15cm, height=7cm]{pl3_bode} 
+  \caption{Bode plots of the third choice of pole placement system}
+  \label{fig:pl3_bode}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=10.15cm, height=7cm]{pl3_impulse} 
+  \caption{Impulse response of third choice of pole placement system}
+  \label{fig:pl3_impulse}
+\end{figure}
+
+\lstinputlisting[language=Matlab]{pole_placement_3.m}
+
+This choice of poles produced very similar results compared to the second choice of poles. There was not much improvement in terms of time required for system to reach stability.
+
 
 \subsection{PID controller}
 \subsubsection{Controller design}
@@ -915,6 +957,11 @@ Below are the plots describing the result of this choice of $K$ values, and the 
 
 \subsection{Linear quadratic regulator (LQR)}
 \subsubsection{Controller design}
+The linear quadratic regulartor controller is a modern controller used for multiple input multiple output (MIMO) system. This is recommended over pole placement technique for MIMO system controller design. The LQR controller attempts to minimize the quantity
+\begin{align}
+\mathcal{I}_{LQR} = \int_{0}^{\infty} [x^T(t)Qx(t) + u^TRu(t)] dx
+\end{align}
+with $Q = C^TC$ and $R = (R^{\frac{1}{2}})^T(R^{\frac{1}{2}})$ by choosing the feedback $u(x) = Kx$.
 
 \subsubsection{First choice of parameters}
 For the first choice of parameters for the LQR controller, we chose the default values deduced from $C^TC$:
@@ -993,4 +1040,19 @@ In addition to the theoretical part of the project, simulation of the system tog
 \newpage
 
 
+\begin{thebibliography}{9}
+
+\bibitem{lectureslides}
+Lecture slides provided by professor Hannah Michalska. 
+
+\bibitem{latexcompanion} 
+Michel Goossens, Frank Mittelbach, and Alexander Samarin. 
+\textit{The \LaTeX\ Companion}. 
+Addison-Wesley, Reading, Massachusetts, 1993.
+ 
+\bibitem{matlabtutorials} 
+Control Tutorials for Matlab and Simulink, \\
+\texttt{http://ctms.engin.umich.edu/CTMS/index.php?aux=Home}. \\
+Accessed 7th December, 2016
+\end{thebibliography}
 \end{document}
